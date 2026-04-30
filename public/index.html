@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <title>Student Wellness Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-card">
+            <h1>🎓 Wellness Tracker</h1>
+            <p class="subtitle">Prati svoje fizičko i mentalno zdravlje</p>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Prijava</button>
+                <button class="tab-btn" data-tab="register">Registracija</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Korisničko ime</label>
+                    <input type="text" id="loginUsername" placeholder="Unesi korisničko ime" required>
+                </div>
+                <div class="form-group">
+                    <label>Lozinka</label>
+                    <input type="password" id="loginPassword" placeholder="Unesi lozinku" required>
+                </div>
+                <button type="submit" class="btn-primary">🔓 Prijava</button>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label>Korisničko ime</label>
+                    <input type="text" id="regUsername" placeholder="Odaberi korisničko ime" required>
+                </div>
+                <div class="form-group">
+                    <label>Lozinka</label>
+                    <input type="password" id="regPassword" placeholder="Min. 4 znaka" minlength="4" required>
+                </div>
+                <div class="form-group">
+                    <label>Potvrdi lozinku</label>
+                    <input type="password" id="regPasswordConfirm" placeholder="Ponovi lozinku" required>
+                </div>
+                <button type="submit" class="btn-primary">📝 Registracija</button>
+            </form>
+            
+            <div id="authError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP (hidden until logged in) -->
+    <div id="appScreen" class="app-container hidden">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="header-left">
+                <h1>🎓 Wellness</h1>
+            </div>
+            <div class="header-right">
+                <span id="userDisplay" class="user-info"></span>
+                <button id="logoutBtn" class="btn-logout">Odjava</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="mobile-nav">
+            <button class="nav-btn active" data-section="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Statistika</span>
+            </button>
+            <button class="nav-btn" data-section="input">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">Unos</span>
+            </button>
+            <button class="nav-btn" data-section="goals">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Ciljevi</span>
+            </button>
+            <button class="nav-btn" data-section="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Postavke</span>
+            </button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboardSection" class="app-section active">
+            <div class="dashboard">
+                <div class="stat-card stat-mood">
+                    <div class="stat-icon">😊</div>
+                    <div class="stat-info">
+                        <h3>Raspoloženje</h3>
+                        <p id="avgMood">-</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-sleep">
+                    <div class="stat-icon">😴</div>
+                    <div class="stat-info">
+                        <h3>San</h3>
+                        <p id="avgSleep">-</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-activity">
+                    <div class="stat-icon">🏃</div>
+                    <div class="stat-info">
+                        <h3>Aktivnost</h3>
+                        <p id="totalActivity">-</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-meditation">
+                    <div class="stat-icon">🧘</div>
+                    <div class="stat-info">
+                        <h3>Meditacija</h3>
+                        <p id="totalMeditation">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>📈 Trend Raspoloženja</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="moodChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>📊 Povijest Unosa</h2>
+                    <button id="exportBtn" class="btn-small">📥 CSV</button>
+                </div>
+                <div class="table-container">
+                    <table id="logsTable">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Aktivnost</th>
+                                <th>San</th>
+                                <th>Raspol.</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Input Section -->
+        <section id="inputSection" class="app-section">
+            <div class="card">
+                <h2>📝 Novi Unos</h2>
+                <form id="wellnessForm">
+                    <div class="form-group">
+                        <label>Datum</label>
+                        <input type="date" id="datum" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Aktivnost</label>
+                        <select id="aktivnost">
+                            <option value="Trčanje">🏃 Trčanje</option>
+                            <option value="Bicikliranje">🚴 Bicikliranje</option>
+                            <option value="Teretana">💪 Teretana</option>
+                            <option value="Šetnja">🚶 Šetnja</option>
+                            <option value="Joga">🧘 Joga</option>
+                            <option value="Odmor">😴 Odmor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Trajanje (min)</label>
+                        <input type="number" id="trajanje_min" placeholder="30" inputmode="numeric">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sati sna</label>
+                        <input type="number" id="sati_sna" step="0.5" placeholder="7.5" inputmode="decimal">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Meditacija (min)</label>
+                        <input type="number" id="meditacija_min" placeholder="10" inputmode="numeric">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Raspoloženje: <output id="moodOutput">3</output>/5</label>
+                        <input type="range" id="raspoloženje" min="1" max="5" value="3" oninput="document.getElementById('moodOutput').value = this.value">
+                        <div class="mood-emojis">
+                            <span>😞</span><span>😐</span><span>😊</span><span>😄</span><span>🤩</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-large">💾 Spremi Unos</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section id="goalsSection" class="app-section">
+            <div class="card">
+                <h2>🎯 Moji Ciljevi</h2>
+                <form id="goalsForm">
+                    <div class="form-group">
+                        <label>Cilj sati sna (dnevno)</label>
+                        <input type="number" id="goalSleep" step="0.5" placeholder="7" inputmode="decimal">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cilj aktivnosti (min/dnevno)</label>
+                        <input type="number" id="goalActivity" placeholder="30" inputmode="numeric">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cilj meditacije (min/dnevno)</label>
+                        <input type="number" id="goalMeditation" placeholder="10" inputmode="numeric">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">💾 Spremi Ciljeve</button>
+                </form>
+                
+                <div id="goalProgress" class="goal-progress"></div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settingsSection" class="app-section">
+            <div class="card">
+                <h2>⚙️ Postavke</h2>
+                
+                <div class="setting-item">
+                    <label>🌙 Dark Mode</label>
+                    <button id="themeToggle" class="btn-toggle">UKLJUČENO</button>
+                </div>
+                
+                <div class="setting-item">
+                    <label>📥 Izvezi Podatke</label>
+                    <button id="exportBtnSettings" class="btn-secondary">Preuzmi CSV</button>
+                </div>
+                
+                <div class="setting-item">
+                    <label>📄 Ispis Izvještaja</label>
+                    <button id="reportBtn" class="btn-secondary">Generiraj PDF</button>
+                </div>
+                
+                <div class="setting-item danger">
+                    <label>🚪 Odjava</label>
+                    <button id="logoutBtnSettings" class="btn-danger">Odjava</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Statistika</h2>
+                <div class="chart-container">
+                    <canvas id="correlationChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
