@@ -1,0 +1,30 @@
+{
+  "name": "student-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Domagoj2003-creator/student-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Domagoj2003-creator/student-tracker/issues"
+  },
+  "homepage": "https://github.com/Domagoj2003-creator/student-tracker#readme"
+}
